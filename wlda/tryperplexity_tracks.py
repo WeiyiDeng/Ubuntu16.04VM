@@ -115,63 +115,19 @@ print('ends 3nd stage')
 
 # generate LDA model
 my_num_topics = 10
-ldamodel = gensim.models.ldamodel.LdaModel(corpus, num_topics=my_num_topics, id2word = dictionary, passes=20)
+ldamodel = gensim.models.ldamodel.LdaModel(corpus, num_topics=my_num_topics, id2word = dictionary, passes=10)
 ldamodel = LdaMulticore(corpus, num_topics=my_num_topics, id2word=dictionary, workers=3, alpha=1e-5, eta=5e-1)
-model_basename = '/home/osboxes/w/wlda/mymodel10'
-ldamodel.save(model_basename)
 
-# load lda model -----------------------------------------------------
-model_basename = '/home/osboxes/w/wlda/mymodel10'
-myldamodel = gensim.models.ldamodel.LdaModel.load(model_basename)
-
-my_num_topics = 10
-print(myldamodel.print_topics(num_topics=my_num_topics, num_words=5))
-print(corpus[0])
-print(corpus[1])
-print(corpus[2])
-print(myldamodel[corpus[0]])
-print(myldamodel[corpus[1]])
-print(myldamodel[corpus[2]])
-
-# print(myldamodel.print_topics(20))
-
-#-------------------------------------------------------------------------
-new_texts_set = values_list
-
-other_texts = []
-
-for i in new_texts_set:
-    
-    # clean and tokenize document string
-    raw = i.lower()
-    tokens = tokenizer.tokenize(raw)
-
-    # remove stop words from tokens
-    stopped_tokens = [i for i in tokens if not i in en_stop]
-    
-    # stem tokens
-    stemmed_tokens = [p_stemmer.stem(i) for i in stopped_tokens]
-    
-    # add tokens to list
-    other_texts.append(stemmed_tokens)
-
-other_corpus = [dictionary.doc2bow(text) for text in other_texts]
-
-# unseen_doc = other_corpus[2]
-
-# vector = myldamodel[unseen_doc]
-
-store_bands_topics = []
-for i in other_corpus:
-    vector = myldamodel[i]
-    store_bands_topics.append(vector)
+store_tracks_topics = []
+for i in corpus:
+    vector = ldamodel[i]
+    store_tracks_topics.append(vector)
     print(vector)
 
-with open("store_bands_topics10.txt", "wb") as fp:
-    pickle.dump(store_bands_topics, fp)
+with open("store_tracks_topics.txt", "wb") as fp:
+    pickle.dump(store_tracks_topics, fp)
 
-print(myldamodel.log_perplexity(corpus))
-
-print(myldamodel.log_perplexity(other_corpus))
+with open("lda_dictionary.txt", "wb") as fp:
+    pickle.dump(dictionary, fp)
 
 
